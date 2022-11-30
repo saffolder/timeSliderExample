@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Cary Bike Accidents</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v2.9.2/mapbox-gl.js"></script>
+    <link
+      href="https://api.tiles.mapbox.com/mapbox-gl-js/v2.9.2/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      }
+
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+      }
+
+      h1 {
+        font-size: 20px;
+        line-height: 30px;
+      }
+
+      h2 {
+        font-size: 14px;
+        line-height: 20px;
+        margin-bottom: 10px;
+      }
+
+      a {
+        text-decoration: none;
+        color: #2dc4b2;
+      }
+
+      #console {
+        position: absolute;
+        margin: 10px;
+        width: 240px;
+        background-color: white;
+        padding: 10px 20px;
+      }
+
+      .session {
+        margin-bottom: 20px;
+      }
+
+      .row {
+        height: 12px;
+        width: 100%;
+      }
+
+      .colors {
+        background: linear-gradient(
+          to right,
+          #2dc4b2,
+          #3bb3c3,
+          #669ec4,
+          #8b88b6,
+          #a2719b,
+          #aa5e79
+        );
+        margin-bottom: 5px;
+      }
+
+      .label {
+        width: 15%;
+        display: inline-block;
+        text-align: center;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="map"></div>
+    <div id="console">
+      <h1>Bike Crashes</h1>
+      <p>
+        Data:
+        <a
+          href="https://catalog.data.gov/dataset/crash-data"
+          >Crash Data</a
+        >
+        in Cary, NC.
+      </p>
+      <div class="session">
+        <h2>Month: <label id="active-month">6</label></h2>
+        <input
+          id="slider"
+          class="row"
+          type="range"
+          min="1"
+          max="12"
+          step="1"
+          value="6"
+        />
+      </div>
+    </div>
+    <script>
+      mapboxgl.accessToken = 'pk.eyJ1Ijoic2FtYWZmb2xkZXIiLCJhIjoiY2wyam9oZmhrMDZhMzNlbzN5MmludTR1aiJ9.vhUMvam1aTt6ygnJsYLpiQ';
+      const map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/light-v11',
+        center: [-78.770, 35.80],
+        zoom: 10.5
+      });
+
+      map.on('load', () => {
+        let filterMonth = ['==', ['string', ['get', 'month']], '6'];
+
+        map.addLayer({
+          id: 'crashData',
+          type: 'circle',
+          source: {
+            type: 'geojson',
+            data:'assets/crashData.geojson'
+          },
+          paint: {
+            'circle-radius': 3,
+            'circle-color': 'blue'
+          },
+          'filter': ['all', filterMonth]
+        });
+
+        document.getElementById('slider').addEventListener('input', (event) => {
+          const month = event.target.value;
+          filterMonth = ['==', ['string', ['get', 'month']], month];
+          map.setFilter('crashData', ['all', filterMonth]);
+          document.getElementById('active-month').innerText = month;
+        });
+      })
+
+    </script>
+  </body>
+</html>
